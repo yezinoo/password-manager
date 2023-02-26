@@ -4,7 +4,6 @@ from tkinter import messagebox
 import os
 import random
 import pyperclip
-
 csv_file = "passwords_list.csv"
 
 
@@ -91,6 +90,7 @@ class PasswordGenerate():
             s_password = s_hosts['Password'].item()
             self.input_name.insert(0, string=s_username)
             self.input_password.insert(0, string=s_password)
+            pyperclip.copy(s_password)
 
     def update(self):
         u_host = self.input_host.get()
@@ -100,7 +100,7 @@ class PasswordGenerate():
         u_data = pandas.read_csv(self.p_file)
         u_data.loc[u_data['Host'] == u_host, 'Username'] = u_username
         u_data.loc[u_data['Host'] == u_host, 'Password'] = u_password
-        u_data.to_csv(self.p_file,index=False)
+        u_data.to_csv(self.p_file, index=False)
 
     def add_ui(self):
         self.window.config(padx=50, pady=50)
