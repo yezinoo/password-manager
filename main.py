@@ -96,7 +96,6 @@ class PasswordGenerate():
         u_host = self.input_host.get()
         u_username = self.input_name.get()
         u_password = self.input_password.get()
-        print(u_host,u_username,u_password)
         u_data = pandas.read_csv(self.p_file)
         u_data.loc[u_data['Host'] == u_host, 'Username'] = u_username
         u_data.loc[u_data['Host'] == u_host, 'Password'] = u_password
