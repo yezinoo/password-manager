@@ -78,28 +78,49 @@ class PasswordGenerate():
                 self.input_host.focus()
 
     def search(self):
+
+        self.input_name.delete(0, END)
+        self.input_password.delete(0, END)
         if not os.path.isfile(self.p_file):
             messagebox.showwarning(title="Not Exist",message="File not found!!")
         else:
-            self.input_name.delete(0,END)
-            self.input_password.delete(0,END)
             s_host = self.input_host.get()
             s_data = pandas.read_csv(self.p_file)
-            s_hosts = s_data.loc[s_data['Host'] == s_host]
-            s_username = s_hosts['Username'].item()
-            s_password = s_hosts['Password'].item()
-            self.input_name.insert(0, string=s_username)
-            self.input_password.insert(0, string=s_password)
-            pyperclip.copy(s_password)
+            found = {row.Host for (index, row) in s_data.iterrows() if row.Host == s_host}
+            if len(found) == 0:
+                messagebox.showerror(title="Not Found", message="Hostname not found")
+            else:
+                s_hosts = s_data.loc[s_data['Host'] == s_host]
+                s_username = s_hosts['Username'].item()
+                s_password = s_hosts['Password'].item()
+                self.input_name.insert(0, string=s_username)
+                self.input_password.insert(0, string=s_password)
+                pyperclip.copy(s_password)
 
     def update(self):
-        u_host = self.input_host.get()
-        u_username = self.input_name.get()
-        u_password = self.input_password.get()
-        u_data = pandas.read_csv(self.p_file)
-        u_data.loc[u_data['Host'] == u_host, 'Username'] = u_username
-        u_data.loc[u_data['Host'] == u_host, 'Password'] = u_password
-        u_data.to_csv(self.p_file, index=False)
+
+        if len(self.input_host.get()) == 0:
+            messagebox.showwarning("Empty",message="Please insert website/host to update username and password")
+        else:
+            u_host = self.input_host.get()
+            u_username = self.input_name.get()
+            u_password = self.input_password.get()
+            u_data = pandas.read_csv(self.p_file)
+            found = {row.Host for (index, row) in u_data.iterrows() if row.Host == u_host}
+            if len(found) == 0:
+                messagebox.showerror(title="Not Found",message="Hostname not found")
+            else:
+                is_ok = messagebox.askokcancel(title="Update Information", message=f"These are the details to update: "
+                                                                                    f"\nUsername: {u_username} \nPassword:{u_password}")
+                if is_ok:
+                    u_data.loc[u_data['Host'] == u_host, 'Username'] = u_username
+                    u_data.loc[u_data['Host'] == u_host, 'Password'] = u_password
+                    u_data.to_csv(self.p_file, index=False)
+                    messagebox.showinfo(title="Update",message="Updated")
+                    self.input_host.delete(0, END)
+                    self.input_name.delete(0, END)
+                    self.input_password.delete(0, END)
+                    self.input_host.focus()
 
     def add_ui(self):
         self.window.config(padx=50, pady=50)
